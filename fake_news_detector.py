@@ -6,6 +6,41 @@ from fake_news_tools.text.text_processor import TextProcessor
 from fake_news_tools.image.image_processor import ImageProcessor
 from fake_news_tools.social_media.social_media_processor import SocialMediaProcessor
 
+"""
+from tensorflow.keras.models import load_model
+
+# Load the model from the file
+loaded_model = load_model('lstm_model_fake_news.h5')
+"""
+
+def show_results(results):
+    print("=" * 60)
+    print("{:^60}".format("Model Results"))
+    print("=" * 60)
+
+    for model, result in results['values'].items():
+        if result:  # Si es Fake (True), establece el color rojo
+            color = "\033[91m"  # Código de color ANSI para rojo
+            prediction = "Fake"
+        else:  # Si no es Fake (False), establece el color verde
+            color = "\033[92m"  # Código de color ANSI para verde
+            prediction = "No Fake"
+
+        print("-" * 60)
+        print("{:^60}".format(model))
+        print(f"Predicción: {color}{prediction}\033[0m")  # Restablecer el color a normal
+        print("-" * 60)
+
+    if results['conclusion']:  # Si es Fake (True), establece el color rojo
+        color_conclusion = "\033[91m"  # Código de color ANSI para rojo
+        prediction_conclusion = "Fake"
+    else:  # Si no es Fake (False), establece el color verde
+        color_conclusion = "\033[92m"  # Código de color ANSI para verde
+        prediction_conclusion = "No Fake"
+
+    print(f"Conclusion: {color_conclusion}{prediction_conclusion}\033[0m")  # Restablecer el color a normal
+    print("=" * 40)
+
 def main():
     # Start counting time for the task to be completed
     start_time = time.time()
@@ -55,11 +90,15 @@ def main():
         sys.exit()
 
     # Run and process input to the script
-    result = handler.process(input_item)
+    results = handler.process(input_item)
 
-    if result < 0:
+    # Supongamos que tienes un diccionario llamado 'resultados' con los nombres de los modelos como claves
+    # y los resultados (True para Fake y False para No Fake) como valores.
+
+    if len(results) < 0:
         sys.exit()
     else:
+        show_results(results)
         end_time = time.time()
         total_time = end_time - start_time
         print(f"[SUCCESS] Total time taken: {total_time:.2f} seconds")

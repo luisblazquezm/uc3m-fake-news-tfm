@@ -1,5 +1,5 @@
 
-
+from fake_news_tools.text.models.model_abstraction import ModelAbstraction
 
 class TextProcessor: 
     # Add code for text analysis (Step 1 - NLP)
@@ -27,7 +27,20 @@ class TextProcessor:
     def __process_text(self, text: str):
         # Add code for text analysis (Step 1 - NLP)
         print("News Text:")
-        print(text)
+
+        # Apply different models
+        results = []
+        for subclass in ModelAbstraction.__subclasses__():
+            result = subclass.predict(data=text)
+            results.append({
+                'method': subclass.get_method(),
+                'result': result,
+                'score': []
+            })
+
+        print("results")
+
+        return results
 
     def __analyze_fact_check_api(self, text: str):
         # Add code for fact-checking API integration (Step 6 - API Integration)
