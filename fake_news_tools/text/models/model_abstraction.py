@@ -1,4 +1,4 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 
 class ModelAbstraction:
 
@@ -15,6 +15,16 @@ class ModelAbstraction:
     
     @abstractmethod
     def get_method() -> str:
+        """
+        Gets the name of the website from which the data is extracted
+
+        Returns:
+            :obj:`str`: Name of the website from which the data is extracted
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_predictions() -> str:
         """
         Gets the name of the website from which the data is extracted
 

@@ -2,9 +2,10 @@ import pickle
 import pandas as pd
 from abc import ABC
 
+from fake_news_tools import config
 from fake_news_tools.text.models.model_abstraction import ModelAbstraction
 
-PATH = './model/logistic_regression_model.sav'
+PATH = config.TEXT_MAIN_PATH + '/ensemble_learning/model/logistic_regression_model.sav'
 
 class LogisticRegressionModel(ModelAbstraction, ABC): 
     # Add code for text analysis (Step 1 - NLP)
@@ -24,6 +25,16 @@ class LogisticRegressionModel(ModelAbstraction, ABC):
         return "Ensemble Learning (Best Model: Logistic Regression)"
 
     @staticmethod
+    def get_predictions() -> list:
+        """
+        Gets the name of the website from which the data is extracted
+
+        Returns:
+            :obj:`str`: Name of the website from which the data is extracted
+        """
+        return ["title", "text"]
+
+    @staticmethod
     def predict(data) -> str:
         """
         Gets the name of the website from which the data is extracted
@@ -35,10 +46,12 @@ class LogisticRegressionModel(ModelAbstraction, ABC):
         lst = [data]
         x = pd.DataFrame(lst, index =[0], columns =['text'])
         x_temp = x['text'].values.astype('U') # The input is a unicode dataframe of string values
-
+        
         # Classify new records
         preds = LogisticRegressionModel.__model.predict(x_temp)
 
-        return list(preds)
+        value = list(preds)
+
+        return 'Fake' if value[0] else 'Not Fake'
 
 

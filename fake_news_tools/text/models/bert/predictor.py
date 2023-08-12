@@ -8,9 +8,10 @@ from transformers import AutoModel, BertTokenizerFast
 import torch
 import torch.nn as nn
 
+from fake_news_tools import config
 from fake_news_tools.text.models.model_abstraction import ModelAbstraction
 
-PATH = './model/c1_fakenews_weights.pt'
+PATH = config.TEXT_MAIN_PATH + '/bert/model/c1_fakenews_weights.pt'
 
 class BERT_Arch(nn.Module):
 
@@ -55,6 +56,16 @@ class BertModel(ModelAbstraction, ABC):
             :obj:`str`: Name of the website from which the data is extracted
         """
         return "BERT"
+    
+    @staticmethod
+    def get_predictions() -> list:
+        """
+        Gets the name of the website from which the data is extracted
+
+        Returns:
+            :obj:`str`: Name of the website from which the data is extracted
+        """
+        return ["title"]
 
     @staticmethod
     def predict(data) -> str:
@@ -83,7 +94,8 @@ class BertModel(ModelAbstraction, ABC):
             preds = preds.detach().cpu().numpy()
 
         preds = np.argmax(preds, axis = 1)
+        value = list(preds)
 
-        return list(preds)
+        return 'Fake' if value[0] else 'Not Fake'
 
 

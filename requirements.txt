@@ -1,0 +1,8 @@
+scikit-learn
+numpy
+pandas
+tensorflow
+torch
+nltk
+transformers
+colorlog

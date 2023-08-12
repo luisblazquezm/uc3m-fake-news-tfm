@@ -1,45 +1,66 @@
 import argparse
 import sys
 import time
+import logging
+import colorlog
 
 from fake_news_tools.text.text_processor import TextProcessor
-from fake_news_tools.image.image_processor import ImageProcessor
 from fake_news_tools.social_media.social_media_processor import SocialMediaProcessor
 
-"""
-from tensorflow.keras.models import load_model
+# Configure logging
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter(
+    "%(log_color)s%(levelname)s - %(message)s",
+    log_colors={
+        'DEBUG': 'reset',
+        'INFO': 'blue',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'red,bg_white',
+    },
+))
 
-# Load the model from the file
-loaded_model = load_model('lstm_model_fake_news.h5')
-"""
+logger = colorlog.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)  # Set the logger level to INFO
 
 def show_results(results):
-    print("=" * 60)
-    print("{:^60}".format("Model Results"))
-    print("=" * 60)
+    logger.info("=" * 70)
+    logger.info("{:^60}".format("Model Results"))
+    logger.info("=" * 70)
 
     for model, result in results['values'].items():
-        if result:  # Si es Fake (True), establece el color rojo
+        if 'Fake' == result:  # Si es Fake (True), establece el color rojo
             color = "\033[91m"  # Código de color ANSI para rojo
             prediction = "Fake"
-        else:  # Si no es Fake (False), establece el color verde
+        elif 'Not Fake' == result:  # Si no es Fake (False), establece el color verde
             color = "\033[92m"  # Código de color ANSI para verde
-            prediction = "No Fake"
+            prediction = "Not Fake"
+        else:
+            color = "\033[90m"  # Código de color ANSI para verde
+            prediction = "Not available for the given input"
 
-        print("-" * 60)
-        print("{:^60}".format(model))
-        print(f"Predicción: {color}{prediction}\033[0m")  # Restablecer el color a normal
-        print("-" * 60)
+        logger.info("-" * 70)
+        logger.info("{:^60}".format(model))
+        logger.info(f"Prediction: {color}{prediction}\033[0m")  # Restablecer el color a normal
+        logger.info("-" * 70)
 
-    if results['conclusion']:  # Si es Fake (True), establece el color rojo
+    if 'Fake' == results['conclusion']:  # Si es Fake (True), establece el color rojo
         color_conclusion = "\033[91m"  # Código de color ANSI para rojo
         prediction_conclusion = "Fake"
-    else:  # Si no es Fake (False), establece el color verde
+    elif 'Not Fake' == results['conclusion']:  # Si no es Fake (False), establece el color verde
         color_conclusion = "\033[92m"  # Código de color ANSI para verde
-        prediction_conclusion = "No Fake"
+        prediction_conclusion = "Not Fake"
+    else:
+        color_conclusion = "\033[90m"  # Código de color ANSI para verde
+        prediction_conclusion = "Not available for the given input"
 
-    print(f"Conclusion: {color_conclusion}{prediction_conclusion}\033[0m")  # Restablecer el color a normal
-    print("=" * 40)
+    print("")
+    print("")
+    print("")
+    logger.info("=" * 70)
+    logger.info(f"Conclusion: {color_conclusion}{prediction_conclusion}\033[0m")  # Restablecer el color a normal
+    logger.info("=" * 70)
 
 def main():
     # Start counting time for the task to be completed
@@ -50,9 +71,6 @@ def main():
     # Arguments for text and link
     parser.add_argument("--text", type=str, help="News text")
     parser.add_argument("--link", type=str, help="News link")
-
-    # Argument for image
-    parser.add_argument("--image", type=str, help="Path to news image")
 
     # Arguments for social media analysis
     parser.add_argument("--social_media", type=str, help="Social media account name")
@@ -68,40 +86,60 @@ def main():
     # Processing based on the input type
     input_item = ""
     if args.text:
-        handler = TextProcessor()
-        input_item = args.text
-    elif args.image:
-        handler = ImageProcessor()
-        input_item = args.image
+        print("")
+        print("")
+        logger.info("Choose an option:")
+        logger.info("1. Analyze news title")
+        logger.info("2. Analyze news text")
+        choice = input("Enter your choice (1/2): ")
+
+        if choice == "1":
+            # Analyze the title
+            print("")
+            print("")
+            logger.info("----- Analyzing news title")
+            handler = TextProcessor(type_process="title", logger=logger)
+            input_item = args.text
+        elif choice == "2":
+            # Analyze the title
+            print("")
+            print("")
+            logger.info("------- Analyzing news content")
+            handler = TextProcessor(type_process="text", logger=logger)
+            input_item = args.text
+        else:
+            logger.error("Invalid choice. Please select either 1 or 2.")
+            sys.exit()
     elif args.link:
-        handler = SocialMediaProcessor(type_process="analyze_url")
+        handler = SocialMediaProcessor(type_process="analyze_url", logger=logger)
         input_item = args.link
     elif args.social_media:
-        handler = SocialMediaProcessor(type_process="analyze_social_media")
+        handler = SocialMediaProcessor(type_process="analyze_social_media", logger=logger)
         input_item = args.social_media
     elif args.url:
-        handler = SocialMediaProcessor(type_process="verify_url")
+        handler = SocialMediaProcessor(type_process="verify_url", logger=logger)
         input_item = args.url
     elif args.search_keyword:
-        handler = SocialMediaProcessor(type_process="search_keyword")
+        handler = SocialMediaProcessor(type_process="search_keyword", logger=logger)
         input_item = args.search_keyword
     else:
-        print("[ERROR] You must provide text, link, image, social media account, URL, or search keyword.")
+        logger.error("You must provide text, link, image, social media account, URL, or search keyword.")
         sys.exit()
 
     # Run and process input to the script
-    results = handler.process(input_item)
+    is_success, result = handler.process(input_item)
 
     # Supongamos que tienes un diccionario llamado 'resultados' con los nombres de los modelos como claves
     # y los resultados (True para Fake y False para No Fake) como valores.
 
-    if len(results) < 0:
+    if not is_success:
+        logger.error("No results found for the available models")
         sys.exit()
     else:
-        show_results(results)
+        show_results(result)
         end_time = time.time()
         total_time = end_time - start_time
-        print(f"[SUCCESS] Total time taken: {total_time:.2f} seconds")
+        logger.info(f"Total time taken: {total_time:.2f} seconds")
         
 
 if __name__ == "__main__":

@@ -13,9 +13,10 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import one_hot
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
+from fake_news_tools import config
 from fake_news_tools.text.models.model_abstraction import ModelAbstraction
 
-PATH = './model/lstm_model_fake_news.h5'
+PATH = config.TEXT_MAIN_PATH + '/lstm/model/lstm_model_fake_news.h5'
 VOCABULARY_SIZE = 500
 SENTENCE_LENGTH = 20
 
@@ -38,6 +39,16 @@ class LSTMModel(ModelAbstraction, ABC):
             :obj:`str`: Name of the website from which the data is extracted
         """
         return "LSTM (Long Short Term Memory)"
+    
+    @staticmethod
+    def get_predictions() -> list:
+        """
+        Gets the name of the website from which the data is extracted
+
+        Returns:
+            :obj:`str`: Name of the website from which the data is extracted
+        """
+        return ["title", "text"]
     
     @staticmethod
     def preprocessing(data):
@@ -85,8 +96,8 @@ class LSTMModel(ModelAbstraction, ABC):
         final_input = np.array(data_embeddings)
 
         # Classify new records
-        preds = LSTMModel.__model.predict(final_input)
+        preds = (LSTMModel.__model.predict(final_input) > 0.5).astype("int32")
+        value = preds.tolist()
 
-        return preds.tolist()
-
+        return 'Fake' if value[0] else 'Not Fake'
 
