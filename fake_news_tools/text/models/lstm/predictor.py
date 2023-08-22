@@ -99,5 +99,5 @@ class LSTMModel(ModelAbstraction, ABC):
         preds = (LSTMModel.__model.predict(final_input) > 0.5).astype("int32")
         value = preds.tolist()
 
-        return 'Fake' if value[0] else 'Not Fake'
+        return 'Fake' if int(value[0][0]) else 'Not Fake'
 
