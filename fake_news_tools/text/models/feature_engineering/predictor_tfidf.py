@@ -85,5 +85,5 @@ class PassiveAgressiveTFIDFModel(ModelAbstraction, ABC):
         preds = PassiveAgressiveTFIDFModel.__model.predict(data_tfidf_vectorizer)
         value = list(preds)
 
-        return 'Fake' if value[0] else 'Not Fake'
+        return 'Fake' if value[0] else 'Not Fake', 0
 

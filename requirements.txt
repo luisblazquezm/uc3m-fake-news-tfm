@@ -6,3 +6,5 @@ torch
 nltk
 transformers
 colorlog
+beautifulsoup4
+lxml

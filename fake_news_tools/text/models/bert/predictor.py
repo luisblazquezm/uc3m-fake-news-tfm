@@ -93,9 +93,12 @@ class BertModel(ModelAbstraction, ABC):
             preds = BertModel.__model(unseen_seq, unseen_mask)
             preds = preds.detach().cpu().numpy()
 
-        preds = np.argmax(preds, axis = 1)
-        value = list(preds)
+        preds_tmp = np.argmax(preds, axis = 1)
+        value = list(preds_tmp)
 
-        return 'Fake' if value[0] else 'Not Fake'
+        # Get probability of classification
+        probability = preds[0, preds_tmp] * 100
+
+        return 'Fake' if value[0] else 'Not Fake', probability
 
 

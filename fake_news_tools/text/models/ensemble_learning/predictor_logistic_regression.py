@@ -1,5 +1,6 @@
 import pickle
 import pandas as pd
+import numpy as np
 from abc import ABC
 
 from fake_news_tools import config
@@ -51,6 +52,10 @@ class LogisticRegressionModel(ModelAbstraction, ABC):
         preds = LogisticRegressionModel.__model.predict(x_temp)
         value = list(preds)
 
-        return 'Fake' if value[0] else 'Not Fake'
+        # Get probability of classification
+        prob_tmp = LogisticRegressionModel.__model.predict_proba(x_temp)
+        probability = prob_tmp[0, np.argmax(prob_tmp)] * 100
+
+        return 'Fake' if value[0] else 'Not Fake', probability
 
 

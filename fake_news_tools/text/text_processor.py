@@ -24,7 +24,7 @@ class TextProcessor:
         except Exception as e:
             return -1"""
 
-        return True, result
+        return True, 1, result
 
     def __process_text(self, text: str):
 
@@ -36,23 +36,26 @@ class TextProcessor:
             prediction_types = instance.get_predictions()
             
             result = "Not available for this model"
+            prob = -1
 
             self.__logger.debug("Running model '" + instance.get_method() + "'")
             # Check if the model is available for title or text prediction
             if self.__process in prediction_types:
-                result = instance.predict(data=text)  # Call predict method of the instance
+                result, prob = instance.predict(data=text)  # Call predict method of the instance
 
             results.append({
                 'method': instance.get_method(),
                 'result': result,
-                'score': []
+                'probability': prob
             })
 
         # Prepare result
-        final_result['values'] = {result['method']:result['result'] for result in results}
+        final_result['values'] = {result['method']:{"class": result['result'], "accuracy": result['probability']} for result in results}
 
         # Get final conclusion result 'Fake' or 'Not fake'
-        counter = Counter([result['result'] for result in results])
+        # Only count those with 50 % percent of probability´
+        most_probability_results = [result for result in results if result["probability"] > 50]
+        counter = Counter([result['result'] for result in most_probability_results])
         most_common_value = counter.most_common(1)[0][0]
         final_result['conclusion'] = most_common_value
 

@@ -99,5 +99,8 @@ class LSTMModel(ModelAbstraction, ABC):
         preds = (LSTMModel.__model.predict(final_input) > 0.5).astype("int32")
         value = preds.tolist()
 
-        return 'Fake' if int(value[0][0]) else 'Not Fake'
+        # Get probability of classification
+        probability = np.array(value)[0, 0] * 100
+
+        return 'Fake' if np.array(value)[0, 0] > 0.5 else 'Not Fake', probability
 

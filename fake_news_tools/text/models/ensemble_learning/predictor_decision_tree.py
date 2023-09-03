@@ -1,4 +1,5 @@
 import pickle
+import numpy as np
 import pandas as pd
 from abc import ABC
 
@@ -7,12 +8,12 @@ from fake_news_tools.text.models.model_abstraction import ModelAbstraction
 
 PATH = config.TEXT_MAIN_PATH + '/ensemble_learning/model/decision_tree_classifier_model.sav'
 
-class LogisticRegressionModel(ModelAbstraction, ABC): 
+class DecisionTreeClassifierModel(ModelAbstraction, ABC): 
     # Add code for text analysis (Step 1 - NLP)
     __model = None
 
     def __init__(self):
-        LogisticRegressionModel.__model = pickle.load(open(PATH, 'rb'))
+        DecisionTreeClassifierModel.__model = pickle.load(open(PATH, 'rb'))
 
     @staticmethod
     def get_method() -> str:
@@ -48,10 +49,13 @@ class LogisticRegressionModel(ModelAbstraction, ABC):
         x_temp = x['text'].values.astype('U') # The input is a unicode dataframe of string values
         
         # Classify new records
-        preds = LogisticRegressionModel.__model.predict(x_temp)
-
+        preds = DecisionTreeClassifierModel.__model.predict(x_temp)
         value = list(preds)
 
-        return 'Fake' if value[0] else 'Not Fake'
+        # Get probability of classification
+        prob_tmp = DecisionTreeClassifierModel.__model.predict_proba(x_temp)
+        probability = prob_tmp[0, np.argmax(prob_tmp)] * 100
+
+        return 'Fake' if value[0] else 'Not Fake', probability
 
 

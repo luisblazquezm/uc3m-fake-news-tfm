@@ -85,6 +85,6 @@ class PassiveAgressiveCountModel(ModelAbstraction, ABC):
         preds = PassiveAgressiveCountModel.__model.predict(data_count_vectorizer)
         value = list(preds)
 
-        return 'Fake' if value[0] else 'Not Fake'
+        return 'Fake' if value[0] else 'Not Fake', 0
 
 
