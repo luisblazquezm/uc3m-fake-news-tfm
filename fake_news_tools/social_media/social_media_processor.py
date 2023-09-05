@@ -6,9 +6,9 @@ from bs4 import BeautifulSoup
 from fake_news_tools.text.text_processor import TextProcessor
 from fake_news_tools.social_media.utils import USER_AGENT_LIST, FAST_CHECK_API_KEY
 
-REQUEST_MIN_TIME_WAIT = 15
-REQUEST_MAX_TIME_WAIT = 30
-NUM_ITEMS = 25
+REQUEST_MIN_TIME_WAIT = 35
+REQUEST_MAX_TIME_WAIT = 65
+NUM_ITEMS = 60
 MAIN_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search?key={api_key}&query={query}&languageCode=en-US&pageSize={num_items}"
 
 class SocialMediaProcessor: 
@@ -116,6 +116,8 @@ class SocialMediaProcessor:
                 self.__logger.error(response.text)
 
             if len(data["claims"]) > 0:
+                print("Number of True news: ", len([claim["claimReview"][0]["textualRating"] for claim in data["claims"] if claim["claimReview"][0]["textualRating"] != "False"]))
+                print("Number of Fake news: ", len([claim["claimReview"][0]["textualRating"] for claim in data["claims"] if claim["claimReview"][0]["textualRating"] == "False"]))
                 return [{"url": item["url"], "prediction": self.__analyze_url(url=item["url"])} for claim in data["claims"] for item in claim["claimReview"]]
             else:
                 self.__logger.info("No results found for the given query '" + keyword + "'")

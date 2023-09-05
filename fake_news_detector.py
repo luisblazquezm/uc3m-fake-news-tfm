@@ -100,7 +100,10 @@ def show_results(results, num_results, input_item=""):
 
         logger.info("*" * 70)
 
-        total = [result["prediction"]["conclusion"] for result in results if "conclusion" in result["prediction"]]
+        print(results)
+
+        total_tmp = [result["prediction"] for result in results if result["prediction"] is not None]
+        total = [item["conclusion"] for item in total_tmp if "conclusion" in item]
 
         logger.info(f"Total news items: {len(total)}")
         logger.info(f"\033[91mNews detected as 'Fake': {total.count('Fake')}\033[0m")
